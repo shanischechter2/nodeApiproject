@@ -115,7 +115,25 @@ userRouter.put('/becomeadmin', jwtMiddleware, async (ctx) => {
   const { username } = ctx.request.body as { username: string };
 
   const isadmin = ctx.state.user?.isadmin;
+  
 
+  try {
+    const user = await UserRepository.getUserByUsername(username);
+    if(!user){
+      ctx.status = 500;
+      ctx.body = { error: 'Failed to get user' };
+      return;
+    }
+     if(user.isadmin)
+     {
+      ctx.status = 400;
+      ctx.body = { error: 'the user is admin allredy' };
+      return;
+     }
+  } catch (error: any) {
+    ctx.status = 500;
+    ctx.body = { error: 'Failed to get user' };
+  }
 
   if (!isadmin) {
     ctx.status = 403;
